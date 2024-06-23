@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Gleb Fandeev on 23.06.2024.
-//
-
 import Foundation
 
 internal enum MeasureExecutionTimeMacroError: Error {
