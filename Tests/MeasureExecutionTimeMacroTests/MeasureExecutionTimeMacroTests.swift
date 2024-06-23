@@ -1,46 +1,49 @@
-//import SwiftSyntaxMacros
-//import SwiftSyntaxMacrosTestSupport
-//import XCTest
-//
-//// Macro implementations build for the host, so the corresponding module is not available when cross-compiling. Cross-compiled tests may still make use of the macro itself in end-to-end tests.
-//#if canImport(MeasureExecutionTimeMacroMacros)
-//import MeasureExecutionTimeMacroMacros
-//
-//let testMacros: [String: Macro.Type] = [
-//    "stringify": StringifyMacro.self,
-//]
-//#endif
-//
-//final class MeasureExecutionTimeMacroTests: XCTestCase {
-//    func testMacro() throws {
-//        #if canImport(MeasureExecutionTimeMacroMacros)
-//        assertMacroExpansion(
-//            """
-//            #stringify(a + b)
-//            """,
-//            expandedSource: """
-//            (a + b, "a + b")
-//            """,
-//            macros: testMacros
-//        )
-//        #else
-//        throw XCTSkip("macros are only supported when running tests for the host platform")
-//        #endif
-//    }
-//
-//    func testMacroWithStringLiteral() throws {
-//        #if canImport(MeasureExecutionTimeMacroMacros)
-//        assertMacroExpansion(
-//            #"""
-//            #stringify("Hello, \(name)")
-//            """#,
-//            expandedSource: #"""
-//            ("Hello, \(name)", #""Hello, \(name)""#)
-//            """#,
-//            macros: testMacros
-//        )
-//        #else
-//        throw XCTSkip("macros are only supported when running tests for the host platform")
-//        #endif
-//    }
-//}
+import SwiftSyntaxMacros
+import SwiftSyntaxMacrosTestSupport
+import XCTest
+
+#if canImport(MeasureExecutionTimeMacroMacros)
+import MeasureExecutionTimeMacroMacros
+
+let testMacros: [String: Macro.Type] = [
+    "measure": MeasureExecutionTimeMacro.self,
+]
+#endif
+
+final class MeasureExecutionTimeMacroTests: XCTestCase {
+    func testMacro() throws {
+        #if canImport(MeasureExecutionTimeMacroMacros)
+        assertMacroExpansion(
+            """
+            @measure
+            func foo() {
+              let x = 1
+              x += 2
+              print(x)
+            }
+            """,
+            expandedSource: """
+            func foo() {
+              let x = 1
+              x += 2
+              print(x)
+            }
+
+            func measure_foo() {\(twoSpaces)
+              let __startTime=CFAbsoluteTimeGetCurrent()
+              defer{ print("Execution time of foo: \\(CFAbsoluteTimeGetCurrent() - __startTime) sec") }
+              let x = 1
+              x += 2
+              print(x)
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+}
+
+// TODO: Fix this
+let twoSpaces = "  "

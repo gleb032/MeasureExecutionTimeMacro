@@ -60,14 +60,14 @@ public class MeasureExecutionTimeMacro: PeerMacro {
       )
     )
 
+    // TODO: fix this
     let newBody: ExprSyntax = """
       \(startTimeDecl)
       \(logExecutionTimeDecl)
-      \(body.statements)
+    \(body.statements.with(leadingTrivia: .spaces(2)))
     """
 
     funcDecl.body = CodeBlockSyntax(
-      leftBrace: .leftBraceToken(leadingTrivia: .space),
       statements: CodeBlockItemListSyntax(
         [CodeBlockItemSyntax(item: .expr(newBody))]
       ),
@@ -87,6 +87,14 @@ public class MeasureExecutionTimeMacro: PeerMacro {
     funcDecl.name = TokenSyntax(stringLiteral: "measure_\(funcDecl.name.text)")
 
     return [DeclSyntax(funcDecl)]
+  }
+}
+
+extension CodeBlockItemListSyntax {
+  fileprivate func with(leadingTrivia: Trivia) -> CodeBlockItemListSyntax {
+    var new = self
+    new.leadingTrivia = leadingTrivia
+    return new
   }
 }
 
