@@ -1,8 +1,10 @@
 import MeasureExecutionTimeMacro
+import Foundation
 
-let a = 17
-let b = 25
+@measure
+func foo() {
+  sleep(2) // Some work
+}
 
-let (result, code) = #stringify(a + b)
+measure_foo()
 
-print("The value \(result) was produced by the code \"\(code)\"")
