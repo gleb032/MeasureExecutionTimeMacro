@@ -7,4 +7,3 @@ func foo() {
 }
 
 measure_foo()
-
